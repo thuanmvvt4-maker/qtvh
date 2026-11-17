@@ -1,0 +1,18 @@
+{
+  "name": "Quy trình vận hành – Nhiên liệu VT4",
+  "short_name": "QTVH VT4",
+  "description": "Tra cứu quy trình vận hành và hỏi đáp AI – Hệ thống nhiên liệu NMNĐ Vĩnh Tân 4",
+  "id": "/qtvh/",
+  "start_url": "/qtvh/?source=app",
+  "scope": "/qtvh/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#ebecf0",
+  "theme_color": "#0b5cad",
+  "lang": "vi",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
