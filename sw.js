@@ -1,5 +1,5 @@
 // Service worker tối giản: lưu sẵn trang cài đặt để mở nhanh, không lưu dữ liệu quy trình.
-const CACHE = 'qtvh-v3';
+const CACHE = 'qtvh-v4';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {

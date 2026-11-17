@@ -186,7 +186,7 @@ iframe{flex:1;border:0;width:100%;background:#525659}
         <div class="m"><div class="b">Xin chào! Hãy đặt câu hỏi về quy trình vận hành.<br>
           • Nếu <b>không chọn</b> tài liệu, AI sẽ tự tìm tối đa 3 tài liệu liên quan.<br>
           • Muốn chính xác hơn, vào tab <b>Tài liệu</b> và đánh dấu ☑ tài liệu cần hỏi (tối đa 5).</div></div>
-        <div class="m"><div class="b guide">
+        <div class="m" id="keyGuide"><div class="b guide">
           <b>🔑 Hướng dẫn lấy key Gemini (miễn phí, chỉ làm 1 lần)</b><br>
           Mỗi người hỏi AI bằng hạn mức Gemini miễn phí của chính tài khoản Google của mình. Để có key:
           <ol>
@@ -369,12 +369,13 @@ $('#keyIn').onkeydown = e => { if (e.key === 'Enter') $('#keySave').click(); };
 
 function renderSel(){
   const kb = getKey()
-    ? '<button class="btn keybtn" id="keyBtn" title="Đổi key">🔑 Key Gemini ✓</button><button class="btn" id="keyDel">Xóa key</button>'
+    ? '<span class="chip keybtn" style="background:#e3f6e8;color:#1b6b34;border-color:#9fd8b0">✅ Đã có key Gemini</span><button class="btn" id="keyDel">Xóa key</button>'
     : '<button class="btn pri keybtn" id="keyBtn">🔑 Nhập key Gemini</button>';
   const docs = selected.size
     ? [...selected].map(id => '<span class="chip" data-id="'+esc(id)+'" title="Bỏ chọn">'+esc(byId[id].name)+' <b>✕</b></span>').join('') + ' <button class="btn" id="clrSel">Bỏ chọn hết</button>'
     : '<span class="chip">🤖 AI tự chọn</span>';
   $('#sel').innerHTML = 'Tài liệu hỏi: ' + docs + kb;
+  $('#keyGuide').classList.toggle('hide', !!getKey());
 }
 $('#sel').onclick = e => {
   if (e.target.id === 'keyBtn') { showKeyCard(); return; }
