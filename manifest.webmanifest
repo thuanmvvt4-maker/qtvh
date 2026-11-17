@@ -6,6 +6,10 @@
   "start_url": "/qtvh/?source=app",
   "scope": "/qtvh/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "related_applications": [
+    { "platform": "webapp", "url": "https://thuanmvvt4-maker.github.io/qtvh/manifest.webmanifest" }
+  ],
   "orientation": "any",
   "background_color": "#ebecf0",
   "theme_color": "#0b5cad",
