@@ -448,14 +448,24 @@ async function loadHist(){
       deferred.userChoice.then(r => { if (r.outcome === 'accepted') done(); deferred = null; });
       return;
     }
+    const copyBtn = '<button class="btn pri" onclick="navigator.clipboard&&navigator.clipboard.writeText(location.origin+location.pathname).then(()=>this.textContent=\'✅ Đã sao chép\')">📋 Sao chép link</button>';
+    const iosNote = '<p class="small">iPhone không cho ứng dụng tự cài như Android, nên cần làm tay 1 lần theo các bước trên (khoảng 10 giây).</p>';
     if (iosSafari) return sheet('<h3>📲 Cài trên iPhone / iPad</h3><ol>'
-      + '<li>Bấm nút <span class="ico">⬆</span> <b>Chia sẻ</b> (mũi tên đang nhấp nháy chỉ vào).</li>'
-      + '<li>Kéo xuống, bấm <b>Thêm vào MH chính</b>.</li>'
-      + '<li>Bấm <b>Thêm</b> ở góc trên bên phải. Xong!</li></ol>', true);
-    if (isIOS) return sheet('<h3>📲 Cần mở bằng Safari</h3><ol>'
-      + '<li>Bấm <b>Sao chép link</b> bên dưới.</li><li>Mở <b>Safari</b>, chạm thanh địa chỉ, chọn <b>Dán và đi</b>.</li>'
-      + '<li>Bấm lại nút <b>Cài ứng dụng</b> trên Safari.</li></ol>'
-      + '<button class="btn pri" onclick="navigator.clipboard&&navigator.clipboard.writeText(location.origin+location.pathname).then(()=>this.textContent=\'✅ Đã sao chép\')">📋 Sao chép link</button>');
+      + '<li>Bấm nút <b>Chia sẻ</b> <span class="ico">⬆</span> ở thanh dưới màn hình (mũi tên đang nhấp nháy chỉ vào).<br>'
+      + '<span class="small">Không thấy nút đó? Bấm nút <span class="ico">•••</span> ở góc dưới bên phải, rồi bấm <b>Chia sẻ</b>.</span></li>'
+      + '<li>Kéo danh sách lên, bấm <b>Thêm vào MH chính</b> <span class="ico">⊞</span>.<br>'
+      + '<span class="small">Không thấy? Bấm <b>Xem thêm</b> ở cuối danh sách.</span></li>'
+      + '<li>Bật <b>Mở dưới dạng ứng dụng web</b> (nếu có), rồi bấm <b>Thêm</b> ở góc trên bên phải. Xong!</li></ol>' + iosNote, true);
+    if (isIOS && inApp) return sheet('<h3>📲 Cần mở bằng Safari</h3>'
+      + '<p>Bạn đang mở trong Zalo/Facebook, ở đây không cài được.</p><ol>'
+      + '<li>Bấm nút <span class="ico">•••</span> ở góc trên bên phải, chọn <b>Mở bằng trình duyệt</b> (hoặc <b>Mở trong Safari</b>).</li>'
+      + '<li>Không có mục đó: bấm <b>Sao chép link</b> bên dưới, mở <b>Safari</b>, chạm thanh địa chỉ, chọn <b>Dán và đi</b>.</li>'
+      + '<li>Trên Safari, bấm lại nút <b>Cài ứng dụng</b>.</li></ol>' + copyBtn);
+    if (isIOS) return sheet('<h3>📲 Cài trên iPhone (Chrome / Edge)</h3><ol>'
+      + '<li>Bấm nút <b>Chia sẻ</b> <span class="ico">⬆</span> ở thanh địa chỉ (góc trên bên phải).</li>'
+      + '<li>Bấm <b>Thêm vào MH chính</b> (có thể phải bấm <b>Xem thêm</b>).</li>'
+      + '<li>Bấm <b>Thêm</b>. Xong!</li></ol>'
+      + '<p class="small">Không thấy mục <b>Thêm vào MH chính</b>? Hãy mở link bằng <b>Safari</b> rồi bấm lại nút Cài ứng dụng.</p>' + copyBtn + iosNote);
     sheet('<h3>📲 Cài thủ công</h3><ol>'
       + '<li>Bấm nút <span class="ico">⋮</span> (Chrome) hoặc <span class="ico">…</span> (Edge) ở góc trên bên phải.</li>'
       + '<li>Chọn <b>Cài đặt ứng dụng</b> hoặc <b>Thêm vào màn hình chính</b>.</li>'
@@ -485,6 +495,9 @@ async function loadHist(){
     $('#btnInstallH').classList.add('hide');
   } else {
     $('#btnInstallL').classList.remove('hide');
+    if (isIOS && inApp) $('#inAppNote').textContent = 'Bạn đang mở trong Zalo/Facebook. Trên iPhone cần mở bằng Safari để cài – bấm nút trên để xem cách làm.';
+    // iPhone không có hộp thoại cài tự động → tự mở hướng dẫn 1 lần
+    if (iosSafari && !store.get('qtvh_ios_hint')) { store.set('qtvh_ios_hint', '1'); setTimeout(install, 800); }
   }
   // Chrome/Edge cho biết ứng dụng đã được cài trên máy hay chưa
   if (navigator.getInstalledRelatedApps) {
