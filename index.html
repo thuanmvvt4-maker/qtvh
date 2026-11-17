@@ -12,155 +12,478 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="QTVH VT4">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<script>
-  // Mở từ biểu tượng trên màn hình chính → vào thẳng web quy trình
-  var APP_URL = 'https://script.google.com/macros/s/AKfycbzKXTHAWRPvHjQNJj1FZZi91vIyoEe8LcO0Dds4OfJMTzcq0eQNOAEcH64R5CZP-3vLRQ/exec';
-  var STANDALONE = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
-  if (STANDALONE || /[?&]open=1/.test(location.search)) location.replace(APP_URL);
-</script>
+<script src="https://accounts.google.com/gsi/client" async></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
 <style>
-:root{--pri:#0b5cad;--bg:#eef2f7;--card:#fff;--text:#1d2633;--muted:#5d6878;--ok:#0f7b4a}
+:root{--bg:#f4f6f9;--card:#fff;--line:#dde2ea;--text:#1d2633;--muted:#6b7686;--pri:#0b5cad;--pri2:#e7f0fa;--ok:#0f7b4a;--err:#b42318}
 *{box-sizing:border-box}
-html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font:17px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
-main{max-width:480px;margin:0 auto;padding:28px 16px 64px;text-align:center}
-.logo{width:120px;height:120px;border-radius:28px;box-shadow:0 6px 20px rgba(0,0,0,.15);background:#ebecf0}
-h1{font-size:22px;margin:16px 0 4px;line-height:1.3}
-.sub{color:var(--muted);margin:0 0 24px;font-size:15px}
-.big{display:block;width:100%;border:0;border-radius:16px;padding:20px 16px;font:inherit;font-size:22px;font-weight:700;color:#fff;background:var(--pri);box-shadow:0 6px 16px rgba(11,92,173,.35);cursor:pointer;text-decoration:none}
-.big:active{transform:scale(.98)}
-.big.ok{background:var(--ok);box-shadow:0 6px 16px rgba(15,123,74,.35)}
-.link{display:inline-block;margin-top:18px;color:var(--pri);font-size:16px;text-decoration:underline;background:none;border:0;font:inherit;cursor:pointer}
-.card{background:var(--card);border-radius:16px;padding:18px;margin-top:20px;text-align:left;box-shadow:0 2px 8px rgba(0,0,0,.06)}
-.card h2{font-size:18px;margin:0 0 10px}
-.card ol{margin:0;padding-left:22px}.card li{margin:10px 0}
-.ico{display:inline-block;border:1px solid #c9d2de;border-radius:6px;padding:0 6px;background:#f6f8fb;font-weight:700}
+html,body{margin:0;height:100%;font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--text);background:var(--bg)}
 .hide{display:none!important}
-.arrow{position:fixed;left:50%;bottom:6px;transform:translateX(-50%);font-size:44px;animation:b 1s infinite;z-index:9}
+.btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 12px;font:inherit;cursor:pointer;white-space:nowrap;color:var(--text);text-decoration:none;display:inline-block}
+.btn.pri{background:var(--pri);border-color:var(--pri);color:#fff}
+.btn:disabled{opacity:.5;cursor:default}
+.small{font-size:12px;color:var(--muted)}
+.brand{position:fixed;left:8px;bottom:4px;font-size:11px;color:var(--muted);opacity:.75;pointer-events:none;z-index:5}
+
+/* ---------- Màn hình đăng nhập ---------- */
+#login{min-height:100%;display:flex;flex-direction:column;align-items:center;padding:32px 16px 60px;text-align:center;background:#eef2f7}
+#login .logo{width:120px;height:120px;border-radius:28px;box-shadow:0 6px 20px rgba(0,0,0,.15)}
+#login h1{font-size:22px;margin:16px 0 4px;line-height:1.3}
+#login .sub{color:var(--muted);margin:0 0 22px}
+.lcard{background:#fff;border-radius:16px;padding:20px 18px;width:100%;max-width:420px;box-shadow:0 2px 10px rgba(0,0,0,.07)}
+.lcard h2{font-size:17px;margin:0 0 12px}
+#gbtn{display:flex;justify-content:center;min-height:44px}
+#loginMsg{color:var(--err);font-size:14px;margin-top:10px}
+.big{display:block;width:100%;max-width:420px;border:0;border-radius:16px;padding:18px 16px;font:inherit;font-size:20px;font-weight:700;color:#fff;background:var(--pri);box-shadow:0 6px 16px rgba(11,92,173,.3);cursor:pointer;text-decoration:none;margin-top:18px;text-align:center}
+.big.ok{background:var(--ok)}
+
+/* ---------- Ứng dụng ---------- */
+#app{height:100%;display:flex;flex-direction:column}
+header{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--pri);color:#fff}
+header .logo{width:36px;height:36px;border-radius:9px;flex:none;background:#fff}
+header h1{font-size:16px;margin:0;flex:1;line-height:1.25;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+header .user{font-size:12px;opacity:.85}
+.hbtn{border:1px solid rgba(255,255,255,.5);background:transparent;color:#fff;border-radius:8px;padding:5px 9px;font:inherit;font-size:13px;cursor:pointer;white-space:nowrap}
+nav{display:flex;gap:4px;padding:6px 12px 0;background:var(--card);border-bottom:1px solid var(--line);overflow-x:auto}
+nav button{border:0;background:none;padding:8px 12px;font:inherit;color:var(--muted);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+nav button.on{color:var(--pri);border-bottom-color:var(--pri);font-weight:600}
+main{flex:1;min-height:0}
+.tab{display:none;height:100%}.tab.on{display:flex}
+#t-docs{gap:0}
+.side{width:340px;min-width:260px;display:flex;flex-direction:column;background:var(--card);border-right:1px solid var(--line)}
+.side .tools{padding:10px;display:flex;gap:6px;border-bottom:1px solid var(--line)}
+input[type=search],textarea,.krow input{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;background:#fff;color:var(--text)}
+.list{overflow:auto;flex:1;padding:6px 0 22px}
+.cat{padding:8px 12px 4px;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
+.doc{display:flex;align-items:flex-start;gap:8px;padding:8px 12px;cursor:pointer;border-left:3px solid transparent}
+.doc:hover{background:var(--bg)}
+.doc.on{background:var(--pri2);border-left-color:var(--pri)}
+.doc input{margin-top:4px;width:18px;height:18px}
+.doc .nm{flex:1;word-break:break-word}
+.viewer{flex:1;display:flex;flex-direction:column;min-width:0}
+.vbar{display:flex;gap:8px;align-items:center;padding:8px 12px;background:var(--card);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.vbar .ttl{flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:120px}
+iframe{flex:1;border:0;width:100%;background:#525659}
+.empty{margin:auto;color:var(--muted);text-align:center;padding:24px}
+#t-chat{flex-direction:column;max-width:960px;margin:0 auto}
+.sel{padding:10px 16px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px;color:var(--muted)}
+.chip{background:var(--pri2);color:var(--pri);border-radius:999px;padding:3px 10px;font-size:12px;display:inline-flex;gap:6px;align-items:center;cursor:pointer}
+.chip b{font-weight:400;opacity:.7}
+.keybtn{margin-left:auto}
+.msgs{flex:1;overflow:auto;padding:8px 16px}
+.m{margin:10px 0;display:flex}
+.m .b{max-width:85%;padding:10px 14px;border-radius:12px;background:var(--card);border:1px solid var(--line);overflow-x:auto}
+.m.u{justify-content:flex-end}.m.u .b{background:var(--pri);color:#fff;border-color:var(--pri);white-space:pre-wrap}
+.m .b p:first-child{margin-top:0}.m .b p:last-child{margin-bottom:0}
+.m .b table{border-collapse:collapse}.m .b td,.m .b th{border:1px solid var(--line);padding:4px 8px}
+.guide ol{margin:6px 0 6px 18px;padding:0}
+.src{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);display:flex;flex-wrap:wrap;gap:6px;font-size:12px;color:var(--muted)}
+.m.err .b{border-color:var(--err);color:var(--err)}
+.input{display:flex;gap:8px;padding:10px 16px;background:var(--card);border-top:1px solid var(--line)}
+.input textarea{resize:none;height:48px}
+.hint{font-size:12px;color:var(--muted);padding:0 16px 8px 150px;background:var(--card)}
+.keycard{margin:12px 16px 0;padding:14px 16px;background:#fffbea;border:1px solid #f0d77a;border-radius:10px}
+.keycard h3{margin:0 0 6px;font-size:15px}.keycard p,.keycard ol{margin:6px 0}
+.krow{display:flex;gap:6px;margin:10px 0}
+#t-hist{flex-direction:column;overflow:auto;padding:16px;max-width:960px;margin:0 auto}
+.qa{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.qa .h{font-size:12px;color:var(--muted)}
+.qa .q{font-weight:600;margin:4px 0}
+.qa details summary{cursor:pointer;color:var(--pri);font-size:13px}
+.dots::after{content:'…';animation:d 1s steps(4) infinite}
+@keyframes d{0%{content:''}25%{content:'.'}50%{content:'..'}75%{content:'...'}}
+#toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:8px 14px;border-radius:8px;display:none;z-index:30}
+
+/* Khung hướng dẫn cài */
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;z-index:20}
+.sheet{background:var(--card);width:100%;max-width:520px;border-radius:14px 14px 0 0;padding:16px 18px 18px;max-height:85%;overflow:auto}
+.sheet h3{margin:0 0 6px;font-size:16px}.sheet ol{margin:8px 0 8px 18px;padding:0}.sheet li{margin:6px 0}
+.ico{display:inline-block;border:1px solid #c9d2de;border-radius:6px;padding:0 6px;background:#f6f8fb;font-weight:700}
+.arrow{position:fixed;left:50%;bottom:6px;transform:translateX(-50%);font-size:44px;animation:bo 1s infinite;z-index:25}
 .arrow.top{bottom:auto;top:4px;left:auto;right:18px;transform:none}
-@keyframes b{0%,100%{translate:0 0}50%{translate:0 8px}}
-.brand{position:fixed;left:8px;bottom:4px;font-size:11px;color:var(--muted);opacity:.8}
-.done{font-size:56px;margin:8px 0}
+@keyframes bo{0%,100%{translate:0 0}50%{translate:0 8px}}
+@media (min-width:761px){.sheet-bg{align-items:center}.sheet{border-radius:14px}}
+@media (max-width:760px){
+  #t-docs{flex-direction:column}
+  .side{width:100%;height:45%;border-right:0;border-bottom:1px solid var(--line)}
+  .m .b{max-width:95%}
+  header .user{display:none}
+  .hint{padding-left:16px;padding-bottom:20px}
+}
 </style>
 </head>
 <body>
-<main>
-  <img class="logo" src="icon-192.png" alt="Logo QTVH">
+
+<!-- ================= ĐĂNG NHẬP ================= -->
+<section id="login">
+  <img class="logo" src="icon-192.png" alt="Logo">
   <h1>Quy trình vận hành<br>Hệ thống nhiên liệu – NMNĐ Vĩnh Tân 4</h1>
   <p class="sub">Xem quy trình và hỏi đáp AI ngay trên điện thoại</p>
-
-  <!-- 1 chạm: Android Chrome, máy tính Chrome/Edge -->
-  <button class="big" id="btnInstall">📲 CÀI ỨNG DỤNG</button>
-
-  <!-- Đang mở trong Zalo/Facebook trên Android -->
-  <a class="big hide" id="btnChrome" href="#">🌐 MỞ BẰNG CHROME ĐỂ CÀI</a>
-
-  <!-- Cài xong -->
-  <div class="hide" id="boxDone">
-    <div class="done">✅</div>
-    <p><b>Đã cài xong!</b><br>Tìm biểu tượng <b>QTVH VT4</b> trên màn hình chính để mở.</p>
-    <a class="big ok" href="#" id="btnOpen2">MỞ ỨNG DỤNG</a>
+  <div class="lcard">
+    <h2>Đăng nhập bằng tài khoản Google để sử dụng</h2>
+    <div id="gbtn"><span class="small dots">Đang tải nút đăng nhập</span></div>
+    <div id="loginMsg"></div>
   </div>
+  <button class="big hide" id="btnInstallL">📲 CÀI ỨNG DỤNG RA MÀN HÌNH CHÍNH</button>
+  <a class="big hide" id="btnChrome" href="#">🌐 MỞ BẰNG CHROME</a>
+  <p class="small" id="inAppNote" style="max-width:420px;margin-top:10px"></p>
+</section>
 
-  <!-- Hướng dẫn khi không cài 1 chạm được -->
-  <div class="card hide" id="guideIOS">
-    <h2>Cài trên iPhone / iPad</h2>
-    <ol>
-      <li>Bấm nút <span class="ico">⬆</span> <b>Chia sẻ</b> (mũi tên đang nhấp nháy chỉ vào).</li>
-      <li>Kéo xuống, bấm <b>Thêm vào MH chính</b>.</li>
-      <li>Bấm <b>Thêm</b> ở góc trên bên phải. Xong!</li>
-    </ol>
-  </div>
-  <div class="card hide" id="guideIOSOther">
-    <h2>Cần mở bằng Safari</h2>
-    <ol>
-      <li>Bấm nút bên dưới để <b>sao chép link</b>.</li>
-      <li>Mở ứng dụng <b>Safari</b>, chạm vào thanh địa chỉ, chọn <b>Dán và đi</b>.</li>
-      <li>Làm theo hướng dẫn hiện ra trên Safari.</li>
-    </ol>
-    <button class="big" id="btnCopy" style="margin-top:14px;font-size:18px">📋 SAO CHÉP LINK</button>
-  </div>
-  <div class="card hide" id="guideManual">
-    <h2>Cài thủ công</h2>
-    <ol>
-      <li>Bấm nút <span class="ico">⋮</span> (Chrome) hoặc <span class="ico">…</span> (Edge) ở góc trên bên phải.</li>
-      <li>Chọn <b>Cài đặt ứng dụng</b> / <b>Thêm vào màn hình chính</b>.</li>
-      <li>Bấm <b>Cài đặt</b>. Xong!</li>
-    </ol>
-    <p style="font-size:14px;color:var(--muted);margin:10px 0 0">Nếu không thấy mục đó, có thể máy đã cài rồi – hãy tìm biểu tượng <b>QTVH VT4</b> trên màn hình chính.</p>
-  </div>
+<!-- ================= ỨNG DỤNG ================= -->
+<div id="app" class="hide">
+  <header>
+    <img class="logo" src="icon-192.png" alt="">
+    <h1>Quy trình vận hành – Hệ thống nhiên liệu NMNĐ Vĩnh Tân 4</h1>
+    <span class="user" id="user"></span>
+    <button class="hbtn" id="btnInstallH" title="Cài ra màn hình chính">📲 Cài</button>
+    <button class="hbtn" id="btnLogout" title="Đăng xuất">Thoát</button>
+  </header>
+  <nav>
+    <button data-t="docs" class="on">📄 Tài liệu</button>
+    <button data-t="chat">💬 Hỏi đáp AI</button>
+    <button data-t="hist" id="nav-hist" class="hide">🕘 Lịch sử</button>
+  </nav>
+  <main>
+    <section class="tab on" id="t-docs">
+      <div class="side">
+        <div class="tools">
+          <input type="search" id="q" placeholder="Tìm quy trình…">
+          <button class="btn" id="reload" title="Tải lại danh sách">⟳</button>
+        </div>
+        <div class="list" id="list"><div class="empty dots">Đang tải danh sách</div></div>
+      </div>
+      <div class="viewer">
+        <div class="vbar">
+          <span class="ttl" id="vttl">Chưa chọn tài liệu</span>
+          <button class="btn" id="askThis" disabled>💬 Hỏi AI về tài liệu này</button>
+          <a class="btn hide" id="openNew" target="_blank" rel="noopener">↗ Mở tab mới</a>
+        </div>
+        <div class="empty" id="vempty">Chọn một quy trình trong danh sách để đọc.<br>Đánh dấu ☑ để chọn tài liệu cho phần Hỏi đáp AI.</div>
+        <iframe id="frame" class="hide" allow="autoplay"></iframe>
+      </div>
+    </section>
 
-  <button class="link" id="btnOpen">Mở web ngay, không cài</button>
-</main>
+    <section class="tab" id="t-chat">
+      <div class="keycard hide" id="keycard">
+        <h3>🔑 Nhập key Gemini của bạn (miễn phí, làm 1 lần)</h3>
+        <p>Mỗi người hỏi AI bằng <b>hạn mức Gemini miễn phí của chính tài khoản Google của mình</b>.</p>
+        <ol>
+          <li>Mở <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> và đăng nhập Google của bạn.</li>
+          <li>Bấm <b>Create API key</b> (Tạo khóa API), rồi bấm <b>Copy</b>.</li>
+          <li>Dán vào ô dưới đây và bấm <b>Lưu</b>.</li>
+        </ol>
+        <div class="krow">
+          <input type="password" id="keyIn" placeholder="Dán key vào đây (AIza… hoặc AQ.…)" autocomplete="off">
+          <button class="btn pri" id="keySave">Lưu</button>
+          <button class="btn" id="keyCancel">Đóng</button>
+        </div>
+        <p class="small">Key chỉ lưu trong trình duyệt trên máy này, không lưu trên máy chủ. Dùng máy chung thì bấm "Xóa key" khi dùng xong.</p>
+        <p class="small" id="keyMsg"></p>
+      </div>
+      <div class="sel" id="sel"></div>
+      <div class="msgs" id="msgs">
+        <div class="m"><div class="b">Xin chào! Hãy đặt câu hỏi về quy trình vận hành.<br>
+          • Nếu <b>không chọn</b> tài liệu, AI sẽ tự tìm tối đa 3 tài liệu liên quan.<br>
+          • Muốn chính xác hơn, vào tab <b>Tài liệu</b> và đánh dấu ☑ tài liệu cần hỏi (tối đa 5).</div></div>
+        <div class="m"><div class="b guide">
+          <b>🔑 Hướng dẫn lấy key Gemini (miễn phí, chỉ làm 1 lần)</b><br>
+          Mỗi người hỏi AI bằng hạn mức Gemini miễn phí của chính tài khoản Google của mình. Để có key:
+          <ol>
+            <li>Vào <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> bằng tài khoản Google của bạn.</li>
+            <li>Bấm <b>Create API key</b> (Tạo khóa API), rồi bấm <b>Copy</b>.</li>
+            <li>Quay lại đây, bấm nút <b>🔑 Nhập key Gemini</b> ở trên, dán key vào và bấm <b>Lưu</b>.</li>
+          </ol>
+          Key chỉ lưu trong trình duyệt trên máy của bạn. Dùng máy chung thì bấm <b>Xóa key</b> khi dùng xong.
+        </div></div>
+      </div>
+      <div class="input">
+        <textarea id="ask" placeholder="Ví dụ: Các bước xử lý khi phát hiện cháy kho than?"></textarea>
+        <button class="btn pri" id="send">Gửi</button>
+      </div>
+      <div class="hint">Enter để gửi · Shift+Enter xuống dòng · AI có thể sai – luôn đối chiếu với văn bản gốc.</div>
+    </section>
+
+    <section class="tab" id="t-hist"><div id="hist" class="empty dots">Đang tải</div></section>
+  </main>
+</div>
+
+<!-- Khung hướng dẫn cài (iPhone / cài thủ công / cài xong) -->
+<div class="sheet-bg hide" id="sheet">
+  <div class="sheet">
+    <div id="sheetBody"></div>
+    <div style="text-align:right;margin-top:12px"><button class="btn pri" id="sheetOk">Đã hiểu</button></div>
+  </div>
+</div>
 <div class="arrow hide" id="arrow">⬇️</div>
+<div id="toast"></div>
 <div class="brand">A product by thuanmv</div>
 
 <script>
-(function(){
-  var $ = function(id){ return document.getElementById(id); };
-  var show = function(id){ $(id).classList.remove('hide'); };
-  var hide = function(id){ $(id).classList.add('hide'); };
-  var ua = navigator.userAgent;
-  var isIOS = /iPhone|iPad|iPod/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
-  var isIPad = /iPad/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
-  var isAndroid = /Android/i.test(ua);
-  var inApp = /Zalo|FBAN|FBAV|FB_IAB|Instagram|Line\/|Messenger|wv\)/i.test(ua);
-  var iosSafari = isIOS && /Safari/i.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS/i.test(ua) && !inApp;
-  var deferred = null;
+/* ================= CẤU HÌNH ================= */
+const CLIENT_ID = '977554950661-o5o4cmrlb1rdcstumsluvijs06p2kvih.apps.googleusercontent.com';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzKXTHAWRPvHjQNJj1FZZi91vIyoEe8LcO0Dds4OfJMTzcq0eQNOAEcH64R5CZP-3vLRQ/exec';
 
-  $('btnOpen').onclick = function(){ location.href = APP_URL; };
-  $('btnOpen2').onclick = function(e){ e.preventDefault(); location.href = APP_URL; };
+/* ================= TIỆN ÍCH ================= */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm = s => String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/gi,'d').toLowerCase();
+const md = t => DOMPurify.sanitize(marked.parse(String(t || '')), {ADD_ATTR:['target']});
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return store.m[k] || null; } },
+  set(k,v){ store.m[k] = v; try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch(e){} },
+  m: {}
+};
+function toast(t){ const e=$('#toast'); e.textContent=t; e.style.display='block'; clearTimeout(toast.h); toast.h=setTimeout(()=>e.style.display='none',3500); }
 
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').catch(function(){});
-  }
+/* ================= ĐĂNG NHẬP GOOGLE ================= */
+const TOK = 'qtvh_idtoken';
+function tokenExp(t){ try { return JSON.parse(atob(t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).exp * 1000; } catch(e){ return 0; } }
+function getToken(){ const t = store.get(TOK); return t && tokenExp(t) > Date.now() + 60000 ? t : null; }
 
-  // iPhone/iPad: Apple không cho cài tự động → hướng dẫn kèm mũi tên
-  if (isIOS) {
-    hide('btnInstall');
-    if (iosSafari) {
-      show('guideIOS'); show('arrow');
-      if (isIPad) { $('arrow').classList.add('top'); $('arrow').textContent = '⬆️'; }
-    } else {
-      show('guideIOSOther');
-    }
-    $('btnCopy').onclick = function(){
-      var url = location.origin + location.pathname;
-      (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject())
-        .then(function(){ $('btnCopy').textContent = '✅ ĐÃ SAO CHÉP'; })
-        .catch(function(){ prompt('Sao chép link này:', url); });
-    };
-    return;
-  }
-
-  // Android trong Zalo/Facebook: mở sang Chrome bằng 1 chạm
-  if (isAndroid && inApp) {
-    hide('btnInstall');
-    show('btnChrome');
-    $('btnChrome').href = 'intent://' + location.host + location.pathname +
-      '#Intent;scheme=https;package=com.android.chrome;end';
-    return;
-  }
-
-  // Chrome / Edge: nút cài 1 chạm
-  window.addEventListener('beforeinstallprompt', function(e){
-    e.preventDefault();
-    deferred = e;
-    hide('guideManual');
+function initGoogle(){
+  if (!window.google || !google.accounts) { setTimeout(initGoogle, 200); return; }
+  google.accounts.id.initialize({
+    client_id: CLIENT_ID,
+    callback: r => { store.set(TOK, r.credential); $('#loginMsg').textContent = ''; startApp(); },
+    auto_select: true,              // lần sau tự đăng nhập lại, không phải bấm
+    cancel_on_tap_outside: false,
+    use_fedcm_for_prompt: true
   });
-  window.addEventListener('appinstalled', function(){
-    deferred = null;
-    hide('btnInstall'); hide('guideManual'); show('boxDone');
-  });
-  $('btnInstall').onclick = function(){
-    if (!deferred) { show('guideManual'); $('guideManual').scrollIntoView({behavior:'smooth'}); return; }
-    deferred.prompt();
-    deferred.userChoice.then(function(r){
-      if (r.outcome === 'accepted') { hide('btnInstall'); show('boxDone'); }
-      deferred = null;
+  google.accounts.id.renderButton($('#gbtn'), { theme: 'filled_blue', size: 'large', shape: 'pill', text: 'signin_with', locale: 'vi', width: 300 });
+  if (!$('#login').classList.contains('hide')) google.accounts.id.prompt();
+}
+function showLogin(msg){
+  $('#app').classList.add('hide'); $('#login').classList.remove('hide');
+  $('#loginMsg').textContent = msg || '';
+  if (window.google && google.accounts) google.accounts.id.prompt();
+}
+$('#btnLogout').onclick = () => {
+  store.set(TOK, null);
+  if (window.google && google.accounts) google.accounts.id.disableAutoSelect();
+  showLogin('Bạn đã đăng xuất.');
+};
+
+/* Gọi phần chạy phía sau (Apps Script) */
+async function api(action, payload){
+  const tok = getToken();
+  if (!tok) { showLogin('Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.'); throw 'Bạn cần đăng nhập lại.'; }
+  let j;
+  try {
+    const r = await fetch(API_URL, {
+      method: 'POST', redirect: 'follow',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(Object.assign({ action, idToken: tok }, payload || {}))
     });
-  };
+    j = await r.json();
+  } catch(e) { throw 'Không kết nối được máy chủ. Kiểm tra mạng rồi thử lại.'; }
+  if (!j.ok) { if (j.auth) { store.set(TOK, null); showLogin(j.error); } throw j.error; }
+  return j.data;
+}
+
+/* ================= ỨNG DỤNG ================= */
+const MAX = 5;
+let DOCS = [], byId = {}, current = null, selected = new Set(), history = [], busy = false, started = false;
+
+async function startApp(){
+  $('#login').classList.add('hide'); $('#app').classList.remove('hide');
+  if (started) return;
+  try {
+    const r = await api('init');
+    started = true;
+    $('#user').textContent = r.user;
+    if (r.hasLog) $('#nav-hist').classList.remove('hide');
+    setDocs(r.docs);
+  } catch(e) { $('#list').innerHTML = '<div class="empty" style="color:var(--err)">⚠ '+esc(e)+'</div>'; }
+}
+
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => showTab(b.dataset.t));
+function showTab(t){
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.t===t));
+  document.querySelectorAll('.tab').forEach(s => s.classList.toggle('on', s.id==='t-'+t));
+  if (t==='chat') { renderSel(); }
+  if (t==='hist') loadHist();
+}
+
+function setDocs(docs){
+  DOCS = docs; byId = {}; docs.forEach(d => byId[d.id]=d);
+  selected.forEach(id => { if(!byId[id]) selected.delete(id); });
+  renderList();
+}
+function renderList(){
+  const q = norm($('#q').value.trim());
+  const rows = DOCS.filter(d => !q || norm(d.name + ' ' + d.cat).includes(q));
+  if (!rows.length) { $('#list').innerHTML = '<div class="empty">'+(DOCS.length?'Không có kết quả.':'Thư mục chưa có PDF.')+'</div>'; return; }
+  let html = '', cat = null;
+  rows.forEach(d => {
+    if (d.cat !== cat) { cat = d.cat; html += '<div class="cat">'+esc(cat)+'</div>'; }
+    html += '<div class="doc'+(current===d.id?' on':'')+'" data-id="'+esc(d.id)+'">'
+      + '<input type="checkbox" title="Chọn để hỏi AI"'+(selected.has(d.id)?' checked':'')+'>'
+      + '<span class="nm">'+esc(d.name)+'</span></div>';
+  });
+  $('#list').innerHTML = html;
+}
+$('#q').oninput = renderList;
+$('#list').onclick = e => {
+  const row = e.target.closest('.doc'); if (!row) return;
+  const id = row.dataset.id;
+  if (e.target.type === 'checkbox') { toggleSel(id, e.target.checked); e.target.checked = selected.has(id); return; }
+  openDoc(id);
+};
+function toggleSel(id, on){
+  if (on && selected.size >= MAX) { toast('Chỉ chọn tối đa '+MAX+' tài liệu.'); return; }
+  on ? selected.add(id) : selected.delete(id);
+  renderSel();
+}
+function openDoc(id){
+  const d = byId[id]; if (!d) return;
+  current = id; renderList(); showTab('docs');
+  $('#vttl').textContent = d.name;
+  $('#vempty').classList.add('hide');
+  const f = $('#frame'); f.classList.remove('hide');
+  f.src = 'https://drive.google.com/file/d/'+encodeURIComponent(id)+'/preview';
+  const a = $('#openNew'); a.href = 'https://drive.google.com/file/d/'+encodeURIComponent(id)+'/view'; a.classList.remove('hide');
+  $('#askThis').disabled = false;
+}
+$('#askThis').onclick = () => { if (!current) return; selected.clear(); selected.add(current); renderList(); showTab('chat'); };
+$('#reload').onclick = async () => {
+  $('#reload').disabled = true;
+  try { setDocs(await api('refresh')); toast('Đã cập nhật danh sách ('+DOCS.length+' tài liệu).'); }
+  catch(e){ toast(e); } finally { $('#reload').disabled = false; }
+};
+
+/* Key Gemini riêng của từng người – chỉ lưu trong trình duyệt */
+const KEY_NAME = 'qtvh_gemini_key';
+const getKey = () => store.get(KEY_NAME) || '';
+function showKeyCard(msg){ $('#keycard').classList.remove('hide'); $('#keyMsg').textContent = msg || ''; $('#keyIn').value = ''; $('#keyIn').focus(); }
+$('#keyCancel').onclick = () => $('#keycard').classList.add('hide');
+$('#keySave').onclick = async () => {
+  const k = $('#keyIn').value.trim();
+  if (!k) { $('#keyMsg').textContent = 'Bạn chưa dán key.'; return; }
+  $('#keySave').disabled = true; $('#keyMsg').textContent = 'Đang kiểm tra key…';
+  try { await api('testKey', { key: k }); store.set(KEY_NAME, k); $('#keycard').classList.add('hide'); renderSel(); toast('Đã lưu key. Bạn có thể hỏi AI.'); }
+  catch(e){ $('#keyMsg').textContent = '⚠ ' + e; }
+  finally { $('#keySave').disabled = false; }
+};
+$('#keyIn').onkeydown = e => { if (e.key === 'Enter') $('#keySave').click(); };
+
+function renderSel(){
+  const kb = getKey()
+    ? '<button class="btn keybtn" id="keyBtn" title="Đổi key">🔑 Key Gemini ✓</button><button class="btn" id="keyDel">Xóa key</button>'
+    : '<button class="btn pri keybtn" id="keyBtn">🔑 Nhập key Gemini</button>';
+  const docs = selected.size
+    ? [...selected].map(id => '<span class="chip" data-id="'+esc(id)+'" title="Bỏ chọn">'+esc(byId[id].name)+' <b>✕</b></span>').join('') + ' <button class="btn" id="clrSel">Bỏ chọn hết</button>'
+    : '<span class="chip">🤖 AI tự chọn</span>';
+  $('#sel').innerHTML = 'Tài liệu hỏi: ' + docs + kb;
+}
+$('#sel').onclick = e => {
+  if (e.target.id === 'keyBtn') { showKeyCard(); return; }
+  if (e.target.id === 'keyDel') { store.set(KEY_NAME, null); renderSel(); toast('Đã xóa key khỏi trình duyệt.'); return; }
+  if (e.target.id === 'clrSel') { selected.clear(); renderSel(); renderList(); return; }
+  const c = e.target.closest('.chip[data-id]'); if (c) { selected.delete(c.dataset.id); renderSel(); renderList(); }
+};
+function addMsg(cls, html){
+  const m = document.createElement('div'); m.className = 'm '+cls;
+  m.innerHTML = '<div class="b">'+html+'</div>';
+  $('#msgs').appendChild(m); $('#msgs').scrollTop = 1e9; return m;
+}
+async function send(){
+  const q = $('#ask').value.trim(); if (!q || busy) return;
+  if (!getKey()) { showKeyCard('Bạn cần nhập key Gemini của mình trước khi hỏi.'); return; }
+  busy = true; $('#send').disabled = true; $('#ask').value = '';
+  addMsg('u', esc(q));
+  const wait = addMsg('', '<span class="dots">Đang đọc tài liệu và soạn câu trả lời</span>');
+  try {
+    const r = await api('ask', { question: q, docIds: [...selected], history, key: getKey() });
+    let src = '';
+    if (r.docs.length) src = '<div class="src">'+(r.auto?'AI đã chọn:':'Nguồn:')+' '
+      + r.docs.map(d => '<span class="chip" data-open="'+esc(d.id)+'">📄 '+esc(d.name)+'</span>').join('')+'</div>';
+    wait.querySelector('.b').innerHTML = md(r.answer) + src;
+    history.push({role:'user', text:q}, {role:'model', text:r.answer});
+    history = history.slice(-6);
+  } catch(e) {
+    wait.classList.add('err'); wait.querySelector('.b').textContent = '⚠ ' + e;
+    if (/key Gemini/i.test(e)) showKeyCard(String(e));
+  } finally { busy = false; $('#send').disabled = false; $('#msgs').scrollTop = 1e9; }
+}
+$('#send').onclick = send;
+$('#ask').onkeydown = e => { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); send(); } };
+$('#msgs').onclick = e => { const c = e.target.closest('[data-open]'); if (c) openDoc(c.dataset.open); };
+
+async function loadHist(){
+  const el = $('#hist'); el.className = 'empty dots'; el.textContent = 'Đang tải';
+  try {
+    const rows = await api('recent');
+    el.className = '';
+    el.innerHTML = rows.length ? rows.map(r =>
+      '<div class="qa"><div class="h">'+esc(r.time)+(r.docs?' · '+esc(r.docs):'')+'</div>'
+      +'<div class="q">'+esc(r.q)+'</div><details><summary>Xem câu trả lời</summary>'+md(r.a)+'</details></div>').join('')
+      : '<div class="empty">Chưa có câu hỏi nào.</div>';
+  } catch(e){ el.className='empty'; el.textContent = '⚠ ' + e; }
+}
+
+/* ================= CÀI RA MÀN HÌNH CHÍNH ================= */
+(function(){
+  const ua = navigator.userAgent;
+  const standalone = (matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  const isIOS = /iPhone|iPad|iPod/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  const isIPad = /iPad/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  const isAndroid = /Android/i.test(ua);
+  const inApp = /Zalo|FBAN|FBAV|FB_IAB|Instagram|Line\/|Messenger|; wv\)/i.test(ua);
+  const iosSafari = isIOS && /Safari/i.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS/i.test(ua) && !inApp;
+  let deferred = null;
+
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+
+  function sheet(html, arrow){
+    $('#sheetBody').innerHTML = html; $('#sheet').classList.remove('hide');
+    if (arrow) { $('#arrow').classList.remove('hide'); if (isIPad) { $('#arrow').classList.add('top'); $('#arrow').textContent='⬆️'; } }
+  }
+  $('#sheetOk').onclick = () => { $('#sheet').classList.add('hide'); $('#arrow').classList.add('hide'); };
+
+  function install(){
+    if (deferred) {
+      deferred.prompt();
+      deferred.userChoice.then(r => { if (r.outcome === 'accepted') done(); deferred = null; });
+      return;
+    }
+    if (iosSafari) return sheet('<h3>📲 Cài trên iPhone / iPad</h3><ol>'
+      + '<li>Bấm nút <span class="ico">⬆</span> <b>Chia sẻ</b> (mũi tên đang nhấp nháy chỉ vào).</li>'
+      + '<li>Kéo xuống, bấm <b>Thêm vào MH chính</b>.</li>'
+      + '<li>Bấm <b>Thêm</b> ở góc trên bên phải. Xong!</li></ol>', true);
+    if (isIOS) return sheet('<h3>📲 Cần mở bằng Safari</h3><ol>'
+      + '<li>Bấm <b>Sao chép link</b> bên dưới.</li><li>Mở <b>Safari</b>, chạm thanh địa chỉ, chọn <b>Dán và đi</b>.</li>'
+      + '<li>Bấm lại nút <b>Cài ứng dụng</b> trên Safari.</li></ol>'
+      + '<button class="btn pri" onclick="navigator.clipboard&&navigator.clipboard.writeText(location.origin+location.pathname).then(()=>this.textContent=\'✅ Đã sao chép\')">📋 Sao chép link</button>');
+    sheet('<h3>📲 Cài thủ công</h3><ol>'
+      + '<li>Bấm nút <span class="ico">⋮</span> (Chrome) hoặc <span class="ico">…</span> (Edge) ở góc trên bên phải.</li>'
+      + '<li>Chọn <b>Cài đặt ứng dụng</b> hoặc <b>Thêm vào màn hình chính</b>.</li>'
+      + '<li>Bấm <b>Cài đặt</b>. Xong!</li></ol>'
+      + '<p class="small">Không thấy mục đó? Có thể máy đã cài rồi – tìm biểu tượng <b>QTVH VT4</b> trên màn hình chính.</p>');
+  }
+  function done(){
+    $('#btnInstallL').classList.add('hide'); $('#btnInstallH').classList.add('hide');
+    sheet('<h3>✅ Đã cài xong!</h3><p>Tìm biểu tượng <b>QTVH VT4</b> trên màn hình chính để mở ứng dụng.</p>');
+  }
+
+  if (standalone) { $('#btnInstallH').classList.add('hide'); return; }
+
+  if (isAndroid && inApp) {
+    $('#btnChrome').classList.remove('hide');
+    $('#btnChrome').href = 'intent://' + location.host + location.pathname + '#Intent;scheme=https;package=com.android.chrome;end';
+    $('#inAppNote').textContent = 'Bạn đang mở trong Zalo/Facebook. Hãy bấm nút trên để mở bằng Chrome rồi đăng nhập và cài ứng dụng.';
+  } else {
+    $('#btnInstallL').classList.remove('hide');
+  }
+  window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferred = e; });
+  window.addEventListener('appinstalled', done);
+  $('#btnInstallL').onclick = install;
+  $('#btnInstallH').onclick = install;
 })();
+
+/* ================= KHỞI ĐỘNG ================= */
+if (getToken()) startApp(); else showLogin();
+initGoogle();
 </script>
 </body>
 </html>
